@@ -124,7 +124,7 @@ while True:
     # ~~~~ INSERT CODE ~~~~
     response = "".join(cacheData)
     clientSocket.sendall(response.encode())                          #
-    
+
     # ~~~~ END CODE INSERT ~~~~
     cacheFile.close()
     print ('Sent to the client:')
@@ -135,13 +135,7 @@ while True:
     # Create a socket to connect to origin server
     # and store in originServerSocket
     # ~~~~ INSERT CODE ~~~~
-
-
-
-
-
-
-
+    originServerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)      #         
 
 
     # ~~~~ END CODE INSERT ~~~~
