@@ -1,4 +1,4 @@
-# Include the libraries for socket and system calls
+··# Include the libraries for socket and system calls
 import socket
 import sys
 import os
@@ -20,6 +20,7 @@ proxyPort = int(args.port)
 try:
   # Create a server socket
   # ~~~~ INSERT CODE ~~~~
+  serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)                 #      
   # ~~~~ END CODE INSERT ~~~~
   print ('Created socket')
 except:
@@ -29,6 +30,7 @@ except:
 try:
   # Bind the the server socket to a host and port
   # ~~~~ INSERT CODE ~~~~
+  serverSocket.bind((proxyHost, proxyPort))                                     #
   # ~~~~ END CODE INSERT ~~~~
   print ('Port is bound')
 except:
@@ -38,6 +40,7 @@ except:
 try:
   # Listen on the server socket
   # ~~~~ INSERT CODE ~~~~
+  serverSocket.listen(0)                                                      #
   # ~~~~ END CODE INSERT ~~~~
   print ('Listening to socket')
 except:
@@ -52,6 +55,7 @@ while True:
   # Accept connection from client and store in the clientSocket
   try:
     # ~~~~ INSERT CODE ~~~~
+    clientSocket, address = serverSocket.accept()                              #
     # ~~~~ END CODE INSERT ~~~~
     print ('Received a connection')
   except:
@@ -61,7 +65,12 @@ while True:
   # Get HTTP request from client
   # and store it in the variable: message_bytes
   # ~~~~ INSERT CODE ~~~~
-  # ~~~~ END CODE INSERT ~~~~
+  message_bytes = clientSocket.recv(BUFFER_SIZE)
+  if not message_bytes or len(message_bytes) ==0:
+    print("no message rceived, close connection")
+    clientSocket.close()
+    continue  
+  # ~~~~ END CODE INSERT ~~~~  
   message = message_bytes.decode('utf-8')
   print ('Received request:')
   print ('< ' + message)
