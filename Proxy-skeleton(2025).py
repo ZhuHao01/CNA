@@ -1,4 +1,4 @@
-··# Include the libraries for socket and system calls
+# Include the libraries for socket and system calls
 import socket
 import sys
 import os
@@ -20,7 +20,7 @@ proxyPort = int(args.port)
 try:
   # Create a server socket
   # ~~~~ INSERT CODE ~~~~
-  serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)                 #      
+  serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)                 # Create TCP IPv4 socket     
   # ~~~~ END CODE INSERT ~~~~
   print ('Created socket')
 except:
@@ -30,7 +30,7 @@ except:
 try:
   # Bind the the server socket to a host and port
   # ~~~~ INSERT CODE ~~~~
-  serverSocket.bind((proxyHost, proxyPort))                                     #
+  serverSocket.bind((proxyHost, proxyPort))                                     #Associate socket with specific network interface and port
   # ~~~~ END CODE INSERT ~~~~
   print ('Port is bound')
 except:
@@ -40,7 +40,7 @@ except:
 try:
   # Listen on the server socket
   # ~~~~ INSERT CODE ~~~~
-  serverSocket.listen(0)                                                      #
+  serverSocket.listen(6)                                                      #Allow up to 6 pending connections in the connection queue
   # ~~~~ END CODE INSERT ~~~~
   print ('Listening to socket')
 except:
@@ -55,7 +55,7 @@ while True:
   # Accept connection from client and store in the clientSocket
   try:
     # ~~~~ INSERT CODE ~~~~
-    clientSocket, address = serverSocket.accept()                              #
+    clientSocket, address = serverSocket.accept()                         #Accept incoming connection and get client socket and address
     # ~~~~ END CODE INSERT ~~~~
     print ('Received a connection')
   except:
@@ -65,8 +65,8 @@ while True:
   # Get HTTP request from client
   # and store it in the variable: message_bytes
   # ~~~~ INSERT CODE ~~~~
-  message_bytes = clientSocket.recv(BUFFER_SIZE)
-  if not message_bytes or len(message_bytes) ==0:
+  message_bytes = clientSocket.recv(BUFFER_SIZE)  # Receive data from client with specified buffer size
+  if not message_bytes or len(message_bytes) ==0:  # Check if connection closed or no data received
     print("no message rceived, close connection")
     clientSocket.close()
     continue  
@@ -123,7 +123,7 @@ while True:
     # Send back response to client 
     # ~~~~ INSERT CODE ~~~~
     response = "".join(cacheData)
-    clientSocket.sendall(response.encode())                          #
+    clientSocket.sendall(response.encode())                          # Convert to bytes and send to client
 
     # ~~~~ END CODE INSERT ~~~~
     cacheFile.close()
@@ -135,9 +135,7 @@ while True:
     # Create a socket to connect to origin server
     # and store in originServerSocket
     # ~~~~ INSERT CODE ~~~~
-    originServerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)      #         
-
-
+    originServerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)      # Create new IPv4 TCP socket for origin server         
     # ~~~~ END CODE INSERT ~~~~
 
     print ('Connecting to:\t\t' + hostname + '\n')
@@ -146,13 +144,22 @@ while True:
       address = socket.gethostbyname(hostname)
       # Connect to the origin server
       # ~~~~ INSERT CODE ~~~~
-
-
-
-
-
-
-
+      
+      print("DEBUG: try to conect the origin server:", hostname, "resource path:", resource)
+      try:
+        if not hostname:
+          print("hostname is empty,failed to connect to origin server")
+          clientSocket.send(b"HTTP/1.1 404 Not Found\r\n\r\nResource not found: no hostname specified")
+          clientSocket.close()
+          originServerSocket=None
+          raise OSError("No hostname specified")
+        else:
+          originServerSocket.connect((hostname, 80))  # Connect to origin server on standard HTTP port 80
+      except Exception as e:
+        print("DEBUG: details of failed connection:", str(e))
+        if "No hostname specified" not in str(e):
+          clientSocket.send(b"HTTP/1.1 500 Internal Server Error\r\n\r\nFailed to connect to origin server")
+        raise
 
 
       # ~~~~ END CODE INSERT ~~~~
